@@ -1,4 +1,4 @@
-# U.A High School
+# U.A High School 🏫
 ![Room Banner](images/0_banner.png)
 
 Hi, today we are gonna solve the U.A High School room on TryHackMe (easy difficulty). Even though the room was categorised as 'easy' I had quite some encounters with new material and techniques I did not know about.
@@ -12,13 +12,13 @@ The scan shows that there are multiple services running. Lets first check out th
 
 ![Feroxbuster](images/2_feroxbuster.png)
 
-Now we know which directories exist and right of the bet we see something very unusual. There is a `index.php` file in the assets folder. Most of the time a assets folder holds only `CSS` ans `JS` files, so this is quite out of the ordinary. Lets check it out. When opening this file we get a empty response. Usually PHP code does not show anything on the website, so this behaviour was quite normal, but I still thought it was a good idea to start fuzzing this file. 
+Now we know which directories exist and right of the bet we see something very unusual. There is a `index.php` file in the assets folder. Most of the time a assets folder holds only `CSS` and `JS` files, so this is quite out of the ordinary. Lets check it out. When opening this file we get a empty response. Usually PHP code does not show anything on the website, so this behaviour was quite normal, but I still thought it was a good idea to start fuzzing this file. 
 
 I used `gobuster` in FUZZ mode and a wordlists containing all sorts of random words in combination with a generic PHP command.
 
 ![Fuzzing](images/3_fuzzing.png)
 
-As you can see, there is definetly something going on with this file. I filtered out all of the responses that returned a 0 and we can see the we get a `200` on the `cmd` string. This means we have found an `command execution` vulnerability on this website. Lets dig a little deeper.
+As you can see, there is definetly something going on with this file. I filtered out all of the responses that returned a 0 and we can see the we get a `200` on the `cmd` string. This means we have found an `command execution` vulnerability on this website. Lets dig a little deeper 🔭
 
 ![Fuzz output](images/4_fuzz_output.png)
 
@@ -26,28 +26,28 @@ The body shows the return value of our `whoami` command which is `base64` encode
 
 ![Fuzz output](images/5_commands.png)
 
-I used a online URL encoder to encode longer command like `cat /etc/passwd`
+I used a online URL encoder to encode longer commands like `cat /etc/passwd`
 
 ![Fuzz output](images/6_passwd_base64.png)
 ![Fuzz output](images/7_passwd_decoded.png)
 
 We have alot of access, so lets try to exploit this vulnerability and get out first reverse shell
 
-### Reverse shell
+### Reverse shell 🐚
 
 To get our first reverse shell, Let's look up the PHP exploit code at [revshells.com](https://revshells.com) and make sure to use the `URL encoded` version.
 
 ![Exploit code](images/8_shell_payload.png)
 
-Before the execution of the code, make sure to start a listener on the disered port and execute this `PHP code` on the `index.php` file.
+Before the execution of the code, make sure to start a listener on the desired port and execute the `PHP code` on the `index.php` file.
 
 ![Rev shell](images/9_meterpreter_shell.png)
 
-Quick tip: I like to use the `multi/handler` from metasploit as this can function as a 'dumb' shell, but has the functionality to get upgraded quite easily to a fully functional `meterpreter` session which upload/download and do many more awesome things by default. After the upgrade to a `meterpreter` session, lets upload `linpeas` for some easy reconnaissance of the system. 
+Quick tip: I like to use the `multi/handler` from metasploit as this can function as a 'dumb' shell, but has the functionality to get upgraded quite easily to a fully functional `meterpreter` session which can upload/download and do many more awesome things by default. After the upgrade to a `meterpreter` session, lets upload `linpeas` for some easy reconnaissance of the system. 
 
 ![Linpeas](images/10_linpeas.png)
 
-The output of `linpeas` gave some information on the system, but did not help me escalate my privileges to the `deku` user. Lets search some more for clues or hidden files.
+The output of `linpeas` gave some information on the system, but did not help escalate my privileges to the `deku` user. Lets search some more for clues or hidden files.
 
 After some more searching I found a file called `passphrase.txt` in the `/var/www` directory. After readings its content we had a plain-text password.
 
@@ -78,7 +78,7 @@ Cool! I think we found the password of the `deku` user. Lets try it out.
 
 ![Success](images/18_ssh_deku.png)
 
-And we are in!! Lets get our first flag that is stored in the `deku` home folder and look for ways to escalate our current privileges to get to `root`. Upon executing the `sudo -ls` command, we can see that the `deku` user has `sudo` access to a executable program.
+And we are in!! Lets get our first flag that is stored in the `deku` home folder 🚩and look for ways to escalate our current privileges to get to `root`. Upon executing the `sudo -ls` command, we can see that the `deku` user has `sudo` access to a executable program.
 
 ![Escalation](images/19_escalation.png)
 
@@ -86,8 +86,8 @@ We can see that it is a bash file that we do not have write permissions for. The
 
 ![Sudoers](images/20_sudoers.png)
 
-Haha! we successfully added the `deku` user to the `sudoers` group and we now have full `sudo` access on this machine. Lets capture the final flag!
+Haha! we successfully added the `deku` user to the `sudoers` group and we now have full `sudo` access on this machine. Lets capture the final flag! 🚩
 
 ![Root](images/21_final_flag.png)
 
-Yayy, Root access!! We successfully pwned this machine and completed the challenge.
+Yayy, Root access!! We successfully pwned this machine and completed the challenge 🥳
